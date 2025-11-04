@@ -1,0 +1,313 @@
+Imports System
+Imports System.IO
+Imports System.Media 
+Imports System.Diagnostics
+Imports System.Threading
+Imports Audio
+Imports Server
+Imports Engine
+Imports Engine.Security
+
+Public Module Game
+    ' 將 Directory/player 提升到模組層級
+    Dim BaseDir As String
+    Private player As SoundPlayer
+    Sub CreateDirectory(path As String)
+        ' 確保基本資料夾存在
+        If Not Directory.Exists(System.IO.Path.Combine(BaseDir, path)) Then
+            Directory.CreateDirectory(System.IO.Path.Combine(BaseDir, path))
+        End If
+    End Sub
+    Sub CreateFile(path As String, content As String)
+        ' 確保基本檔案存在
+        If Not File.Exists(System.IO.Path.Combine(BaseDir, path)) Then
+            File.WriteAllText(System.IO.Path.Combine(BaseDir, path), content)
+        End If
+    End Sub
+    ' 新增: GetSoundPlayer 函數 
+    Function GetSoundPlayer(Dir As String, path As String) As SoundPlayer
+        Dim soundPath As String = System.IO.Path.Combine(Dir, path)
+        Dim p As New SoundPlayer()
+        p.SoundLocation = soundPath
+        Return p
+    End Function
+
+    ' 新增: 定義設定 Rich Presence 狀態的函數 (使用 P/Invoke Wrapper)
+    Public Sub SetDiscordStatus(details As String, Optional state As String = "Playing Hacknet CMD Basic", Optional largeText As String = "HACKNET OS")
+        Try
+            ' 創建新的 RichPresence 結構體 (來自 Engine 命名空間)
+            Dim presence As New Engine.RichPresence()
+            
+            ' FIX: 截斷字串以確保長度不超過 RichPresence 結構體中的固定大小
+            ' details 和 state 限制為 128，所以截取到 127
+            presence.details = If(details.Length > 127, details.Substring(0, 127), details)
+            presence.state = If(state.Length > 127, state.Substring(0, 127), state)
+            
+            ' largeImageText/Key 限制為 256
+            presence.largeImageKey = "hacknet_logo" 
+            presence.largeImageText = If(largeText.Length > 255, largeText.Substring(0, 255), largeText)
+            
+            ' 呼叫 P/Invoke 更新狀態
+            Engine.DiscordRPC.UpdatePresence(presence)
+            
+        Catch ex As Exception
+            ' 忽略 Discord RPC 失敗，防止程式崩潰
+            Debug.WriteLine("Discord RPC Failed: " & ex.Message)
+        End Try
+    End Sub
+    Public Sub ScanServer(server As HNServer)
+        Console.WriteLine("Scanning: " & server.Name & " (" & server.IP & ")")
+        If server.ConnectedServers Is Nothing OrElse server.ConnectedServers.Length = 0 Then
+            Console.WriteLine("  No connected servers.")
+        Else
+            Console.WriteLine("  Connected servers:")
+            For Each cs As String In server.ConnectedServers
+                Console.WriteLine("   - " & cs)
+            Next
+        End If
+    End Sub
+
+    Public Function GetConnectedServer(server As HNServer) As String()
+        Return server.ConnectedServers
+    End Function
+
+    Public Sub GameMain(Dir As String)
+        Dim DiscordAppID As String = "1428378052223697007" 
+        
+        ' 儲存 BaseDir 到模組變數
+        BaseDir = Dir
+        
+        ' *** Discord RPC 初始化 (使用 P/Invoke Wrapper) ***
+        Try
+            ' VB.NET 2012 嚴格要求所有參數都用括號包住
+            Engine.DiscordRPC.Initialize(DiscordAppID, IntPtr.Zero, True, Nothing)
+            
+            ' 設定初始狀態 (主選單)
+            SetDiscordStatus("In Main Menu")
+        Catch ex As Exception
+            Debug.WriteLine("Discord RPC Initialization Failed: " & ex.Message)
+        End Try
+        
+        Console.Title = "HACKNET OS COMMAND LINE"
+        
+        ' 警告 BC42024 (未使用的變數)
+        Dim ServersAvilable() As HNServer
+        Dim targetFont As String = "MS Gothic"
+        Dim targetSize As Integer = 20
+        ConsoleFont.SetFont(targetFont, targetSize)
+        
+        ' 宣告迴圈變數 (GameMain)
+        Dim selected As Integer = 0
+        Dim menus() As String 
+        ' 修正陣列初始化語法
+        menus = New String() {"Play", "Options", "Exit"}
+        
+        Dim pressedKey As ConsoleKeyInfo
+        Dim selectedValue As String = "Null"
+        
+        ' 音效初始化
+        player = GetSoundPlayer(BaseDir,"assets\audios\bgm.wav")
+        player.PlayLooping()
+        
+        While True
+            ' *** 定期呼叫 Discord_RunCallbacks (P/Invoke) ***
+            Try
+                ' VB.NET 2012 嚴格要求無參數呼叫也要用括號
+                Engine.DiscordRPC.RunCallbacks()
+            Catch
+                ' 忽略 RunCallbacks 失敗
+            End Try
+            
+            Console.Clear() 
+            Logo("Basic")
+            selectedValue = Menu(selected, menus)
+            pressedKey = Console.ReadKey(True)
+            
+            If pressedKey.Key = ConsoleKey.UpArrow Then
+                If selected > 0 Then
+                    selected -= 1
+                Else
+                    selected = menus.Length - 1
+                End If
+            ElseIf pressedKey.Key = ConsoleKey.DownArrow Then
+                If selected < menus.Length - 1 Then 
+                    selected += 1
+                Else
+                    selected = 0
+                End If
+            ElseIf pressedKey.Key = ConsoleKey.Enter Then
+                If selectedValue = "Exit" Then
+                    ' *** 關閉 Discord RPC (P/Invoke) ***
+                    Try
+                        Engine.DiscordRPC.Shutdown() 
+                    Catch
+                        ' 忽略 Shutdown 失敗
+                    End Try
+                    ' Environment.Exit 必須用括號
+                    Environment.Exit(0)
+                ElseIf selectedValue = "Play" Then 
+                    LoginSettings()
+                ElseIf selectedValue = "Options" Then 
+                    GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
+                    player.PlayLooping()
+                Else
+                    GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
+                    player.PlayLooping()
+                End If
+            End If
+        End While
+    End Sub
+
+    Public Sub LoginSettings()
+        ' 宣告迴圈變數 (LoginSettings)
+        Dim selected As Integer = 0 
+        Dim pressedKey As ConsoleKeyInfo 
+        Dim selectedValue As String = "Null" 
+        
+        Dim menus() As String 
+        menus = New String() {"Login", "Register", "Back"}
+        
+        While True
+            ' *** 定期呼叫 Discord_RunCallbacks (P/Invoke) ***
+            Try
+                Engine.DiscordRPC.RunCallbacks()
+            Catch
+                ' 忽略 RunCallbacks 失敗
+            End Try
+
+            Console.Clear() 
+            Logo("Play")
+            selectedValue = Menu(selected, menus)
+            pressedKey = Console.ReadKey(True)
+            
+            If pressedKey.Key = ConsoleKey.UpArrow Then
+                If selected > 0 Then
+                    selected -= 1
+                Else
+                    selected = menus.Length - 1 
+                End If
+            ElseIf pressedKey.Key = ConsoleKey.DownArrow Then
+                If selected < menus.Length - 1 Then 
+                    selected += 1
+                Else
+                    selected = 0
+                End If
+            ElseIf pressedKey.Key = ConsoleKey.Enter Then
+                If selectedValue = "Back" Then
+                    Return
+                ElseIf selectedValue = "Login" Then 
+                    Login()
+                ElseIf selectedValue = "Register" Then 
+                    Register()
+                Else
+                    ' 使用 BaseDir 和模組級 player
+                    GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
+                    player.PlayLooping()
+                End If
+            End If
+        End While
+    End Sub
+    Sub Login()
+        Console.Clear()
+        Logo("Login")
+        Dim username As String
+        Dim password As String
+        Console.WriteLine("Enter your username:")
+        username = Console.ReadLine()
+        Console.WriteLine("Enter your password:")
+        password = Console.ReadLine()
+        Dim filePath As String = BaseDir & "\Data\Player\Accounts\" & username & "\info.linf"
+        If File.Exists(filePath) Then
+            Dim fileContent As String = File.ReadAllText(filePath)
+            Dim storedUsername As String = ""
+            Dim storedPassword As String = ""
+            If fileContent.StartsWith("<username>") AndAlso fileContent.Contains("<password>") Then
+                Dim unameStart As Integer = "<username>".Length
+                Dim unameEnd As Integer = fileContent.IndexOf("<password>")
+                storedUsername = fileContent.Substring(unameStart, unameEnd - unameStart)
+                storedPassword = fileContent.Substring(unameEnd + "<password>".Length)
+            End If
+            If storedUsername = username AndAlso storedPassword = Security.ToSHA256(password) Then
+                Console.WriteLine("Login successful!")
+                StartGame()
+            Else
+                Console.WriteLine("Login failed!")
+            End If
+        Else 
+            Console.WriteLine("User does not exist!")
+        End If
+        Console.ReadKey()
+    End Sub
+    Sub Register()
+        Console.Clear()
+        Logo("Register")
+        Dim username As String
+        Dim password As String
+        Console.WriteLine("Enter your username:")
+        username = Console.ReadLine()
+        Console.WriteLine("Enter your password:")
+        password = Console.ReadLine()
+        Try
+            If HNFiles.DirExists(BaseDir & "\Data\Player\Accounts\" & username) Then
+               Console.WriteLine("User already exists!")
+            Else
+               CreateDirectory(BaseDir & "\Data\Player\Accounts\" & username)
+               HNFiles.WriteFile(BaseDir & "\Data\Player\Accounts\" & username & "\info.linf", "<username>" & username & "<password>" & Security.ToSHA256(password))
+               Console.WriteLine("Registration successful!")
+            End If
+        Catch ex As Exception
+            ' 處理可能發生的錯誤，例如檔案不存在、權限不足等
+            Console.WriteLine("An error occurred: " & ex.Message)
+        End Try
+        Console.ReadKey()
+    End Sub
+
+    Public Sub Logo(SubTitle As String)
+        Console.WriteLine("██╗  ██╗  █████╗   █████╗  ██╗  ██╗ ███╗  ██╗ ███████╗ ████████╗")
+        Console.WriteLine("██║  ██║ ██╔══██╗ ██╔══██╗ ██║ ██╔╝ ████╗ ██║ ██╔════╝ ╚══██╔══╝")
+        Console.WriteLine("███████║ ███████║ ██║  ╚═╝ █████═╝  ██╔██╗██║ █████╗      ██║")
+        Console.WriteLine("██╔══██║ ██╔══██║ ██║  ██╗ ██╔═██╗  ██║╚████║ ██╔══╝      ██║")
+        Console.WriteLine("██║  ██║ ██║  ██║ ╚█████╔╝ ██║ ╚██╗ ██║ ╚███║ ███████╗    ██║")
+        Console.WriteLine("╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚════╝  ╚═╝  ╚═╝ ╚═╝  ╚══╝ ╚══════╝    ╚═╝")
+        Console.WriteLine("                      " & SubTitle & "                               ")
+    End Sub
+    Sub StartGame()
+        Dim sr As New StreamReader("Boot.txt")
+        player.Stop()
+        Dim line As String = ""
+        Console.Clear()
+        Do
+            Try
+                line = sr.ReadLine()
+            Catch ex As Exception
+                Console.WriteLine("Error reading file: " & ex.Message)
+            End Try
+            
+            If line IsNot Nothing Then
+                Console.WriteLine(line)
+                If line = "\n" Then
+                    Thread.Sleep(2480)
+                End If
+                If line = "" Then
+                    Thread.Sleep(2480)
+                End If
+                Thread.Sleep(20)
+            End If
+        Loop Until line Is Nothing
+    End Sub
+    Function Menu(selected As Integer, menus() As String) As String
+        Dim index As Integer = 0
+        Dim selectedValue As String = "None"
+        For Each menuN As String In menus
+            If index = selected Then
+                Console.WriteLine("    ["+menuN+"]")
+                selectedValue = menuN
+            Else
+                Console.WriteLine(" "+menuN)
+            End If
+            Console.WriteLine("")
+            index += 1
+        Next
+        Return selectedValue
+    End Function
+End Module

@@ -1,0 +1,59 @@
+                    HackBoot v2.0.4 - Grand Unified Basic Bootloader
+                             (c) Entropy Systems 2025
+
+Loading Hacknet OS Basic Version 1.0.2 kernel...
+[MBR] Reading boot sector from /dev/hda
+[GRUB] Loading kernel image: /boot/vmlinuz-5.10.0-hacknet-basic... Done.
+[GRUB] Loading initial ramdisk: /boot/initrd.img-5.10.0-hacknet-basic... Done.
+
+Kernel command line: root=/dev/hdb1 ro quiet pci=nomsi vt.handoff=7
+Decompressing Linux... Parsing ELF... done.
+Booting the kernel.
+
+---
+[    0.000000] Hacknet Kernel v5.10.0-hacknet-basic (GCC 12.3.0)
+[    0.000000] BIOS-e820: [0x0000000000000000-0x000000000009fbff] usable
+[    0.000000] BIOS-e820: [0x000000000009fc00-0x00000000000fffff] reserved
+[    0.000000] Memory: 16384M/16384M available (1444k kernel code, 1204k data, 320k init)
+[    0.000000] Initializing CPU#0
+[    0.000000] CPU: Intel(R) Core(TM) i9-14900K @ 3.20GHz
+[    0.000000] TSC: Calibrating delay loop (4784.12 BogoMIPS)... done.
+[    0.000000] Console: colour VGA+ 80x25
+[    0.000000] APIC: Enabling Local APIC... done.
+[    0.000000] PCI: Probing PCI hardware...
+[    0.000000] ACPI: DMAR: Host address width 39
+[    0.000000] hda: WDC WD10JPVT-75A25T0, ATA DISK drive
+[    0.000000] hdb: INTEL SSDPEKNW010T8, NVME DISK drive
+[    0.000000] NVME: Attached nvme0n1 as /dev/hdb
+[    0.000000] e1000e: Intel(R) PRO/1000 Network Connection
+[    0.    3.254121] VFS: Mounted root (xfs filesystem) on /dev/hdb1.
+:: Running /etc/init.d/rc.sysinit ...
+[ OK ] Found Hacknet Basic /etc/fstab entry for / (root).
+[ OK ] Setting up loopback interface [ lo ].
+[ OK ] Setting system timezone to Asia/Taipei.
+[ OK ] Enabling swap space: /dev/hdb2.
+[ OK ] Creating /dev/shm and /dev/pts entries.
+[ INFO ] Starting systemd-udevd: managing device nodes.
+[ OK ] Started systemd-udevd.
+[ OK ] Activated service: local-fs.target.
+---
+
+:: Starting required services...
+[ INFO ] Awaiting network connectivity...
+[ OK ] Reached target Network.
+[ OK ] Started Network Manager Daemon.
+
+[ **OK** ] systemd-journald.service - Journal Service
+[ **OK** ] rsyslog.service - System Logging Daemon
+[ **OK** ] auditd.service - Security Auditing Daemon
+[ **OK** ] sshd.service - OpenBSD Secure Shell Server
+[ **OK** ] cronie.service - Vixie-cron
+[ **OK** ] dbus.service - D-Bus System Message Bus
+[ **OK** ] **hacknet-basic-term.service - Basic Terminal Shell**
+
+[ INFO ] Starting optional services (Runlevel 3)...
+[ WARN ] firewall.service: Firewall configuration not found. Skipping.
+[ OK ] ntpdate.service: Time synchronized successfully.
+[ FAIL ] httpd.service: Address 0.0.0.0:80 is already in use.
+
+-Boot Complete-

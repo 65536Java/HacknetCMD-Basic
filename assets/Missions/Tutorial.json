@@ -1,0 +1,15 @@
+[
+    {
+        "name": "My Computer",
+        "ip": "162.169.8.3",
+        "proxy": true,
+        "firewall": true,
+        "need_crack_ports": 4,
+        "connected_servers": ["211.467.8.6"]
+    },
+    {
+        "name": "Mott.com",
+        "ip": "211.467.8.6",
+        "need_crack_ports": 0
+    }
+]
