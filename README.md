@@ -4,5 +4,9 @@ Other Versions:<br/>
 [Core Edition](https://github.com/Skiawm91/HacknetCMD-Core)(Recommend)<br/>
 [Batch Edition](https://drive.google.com/drive/folders/1P23sV2mwOlDx-oI0giCKQuBuxQ9sCLtq?usp=drive_fs)(The most original)<br/>
 [Java Edition](https://github.com/65536Java/Hacknet4CMD-Java-Edition)(Is Surpassed)<br/>
+Other Developers:
+[Skiawm91](https://github.com/Skiawm91)<br/>
+[Hoyiqiang](https://github.com/Hoyiqiang)<br/>
+[Null(Me)](https://github.com/65536Java)<br/>
 # Now version: Beta 0012
 # Developing Progress: Boot
