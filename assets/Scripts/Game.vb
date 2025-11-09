@@ -12,6 +12,7 @@ Public Module Game
     ' 將 Directory/player 提升到模組層級
     Dim BaseDir As String
     Private player As SoundPlayer
+    Private playerName As String
     Sub CreateDirectory(path As String)
         ' 確保基本資料夾存在
         If Not Directory.Exists(System.IO.Path.Combine(BaseDir, path)) Then
@@ -229,6 +230,7 @@ Public Module Game
             End If
             If storedUsername = username AndAlso storedPassword = Security.ToSHA256(password) Then
                 Console.WriteLine("Login successful!")
+                playerName = username
                 StartGame()
             Else
                 Console.WriteLine("Login failed!")
@@ -253,6 +255,7 @@ Public Module Game
             Else
                CreateDirectory(BaseDir & "\Data\Player\Accounts\" & username)
                HNFiles.WriteFile(BaseDir & "\Data\Player\Accounts\" & username & "\info.linf", "<username>" & username & "<password>" & Security.ToSHA256(password))
+               HNFiles.WriteFile(BaseDir & "\Data\Player\Accounts\" & username & "\session.ses", "1")
                Console.WriteLine("Registration successful!")
             End If
         Catch ex As Exception
@@ -294,7 +297,38 @@ Public Module Game
                 Thread.Sleep(20)
             End If
         Loop Until line Is Nothing
+        If HNFiles.ReadFile(BaseDir & "\Data\Player\Accounts\" & playerName & "\session.ses") = "1" Then
+            ConsoleUtil.PrintWithDelay("-14 DAY TIMER EXPIRED : INITIALIZING FAILSAFE-")
+            ConsoleUtil.PrintWithDelay("-----------------------------------------------------")
+            Console.WriteLine("")
+            ConsoleUtil.PrintWithDelay("Hi.")
+            Thread.Sleep(500)
+            ConsoleUtil.PrintWithDelay("...")
+            Thread.Sleep(500)
+            ConsoleUtil.PrintWithDelay("This is strange... Stranger than I expected.")
+            Console.WriteLine("")
+            Thread.Sleep(500)
+            ConsoleUtil.PrintWithDelay("I guess I'm supposed to write this in past tense, though I hardly feel like admitting it's over.")
+            Console.WriteLine("")
+            Thread.Sleep(1000)
+            ConsoleUtil.PrintWithDelay("My name is Bit, and if you're reading this, I'm already dead.")
+            For i As Integer = 0 To 5
+                Console.Clear()
+                Thread.Sleep(RandomNumber(200, 1000))
+                Console.WriteLine("Initializing...")
+            Next
+            ConsoleUtil.PrintWithDelay("Loading Modules......Complete")
+            ConsoleUtil.PrintWithDelay("Loading Nodes......Complete")
+            ConsoleUtil.PrintWithDelay("Reticulating Splines......Complete")
+            ConsoleUtil.PrintWithDelay("--Initialization Complete--")
+            Thread.Sleep(550)
+            Console.WriteLine("Starting Tutorial...")
+        End If
     End Sub
+    Function RandomNumber(min As Integer, max As Integer) As Integer
+        Dim rand As New Random()
+        Return rand.Next(min, max + 1)
+    End Function
     Function Menu(selected As Integer, menus() As String) As String
         Dim index As Integer = 0
         Dim selectedValue As String = "None"
