@@ -1,59 +1,75 @@
-                    HackBoot v2.0.4 - Grand Unified Basic Bootloader
-                             (c) Entropy Systems 2025
+Darwin/xnu-200.0.0~1/BUILD-HACKNET-OS-BASIC: root(HacknetOSBasic-241026)
+boot-args: "root=/dev/disk0s2 debug=0x100 -v kext-dev-mode=1"
+Mac-Pro.local boot:
 
-Loading Hacknet OS Basic Version 1.0.2 kernel...
-[MBR] Reading boot sector from /dev/hda
-[GRUB] Loading kernel image: /boot/vmlinuz-5.10.0-hacknet-basic... Done.
-[GRUB] Loading initial ramdisk: /boot/initrd.img-5.10.0-hacknet-basic... Done.
+EFI Runtime Services Dumper v1.0
+Calling RTC_init...
+Initializing APIC.
+Scanning for APICs... Done.
+CPU: Intel(R) Core(TM) i9-14900K, 8 Cores (16 Threads)
+Memory: 16384 MB (16 GB)
+Platform has 16 logical CPUs.
 
-Kernel command line: root=/dev/hdb1 ro quiet pci=nomsi vt.handoff=7
-Decompressing Linux... Parsing ELF... done.
-Booting the kernel.
+ACPI: System-specific overrides loaded.
+ACPI: Executing method _PTS for lid.
+ACPI: Executing method _PTS for power.
+ACPI: System-specific overrides loaded.
 
----
-[    0.000000] Hacknet Kernel v5.10.0-hacknet-basic (GCC 12.3.0)
-[    0.000000] BIOS-e820: [0x0000000000000000-0x000000000009fbff] usable
-[    0.000000] BIOS-e820: [0x000000000009fc00-0x00000000000fffff] reserved
-[    0.000000] Memory: 16384M/16384M available (1444k kernel code, 1204k data, 320k init)
-[    0.000000] Initializing CPU#0
-[    0.000000] CPU: Intel(R) Core(TM) i9-14900K @ 3.20GHz
-[    0.000000] TSC: Calibrating delay loop (4784.12 BogoMIPS)... done.
-[    0.000000] Console: colour VGA+ 80x25
-[    0.000000] APIC: Enabling Local APIC... done.
-[    0.000000] PCI: Probing PCI hardware...
-[    0.000000] ACPI: DMAR: Host address width 39
-[    0.000000] hda: WDC WD10JPVT-75A25T0, ATA DISK drive
-[    0.000000] hdb: INTEL SSDPEKNW010T8, NVME DISK drive
-[    0.000000] NVME: Attached nvme0n1 as /dev/hdb
-[    0.000000] e1000e: Intel(R) PRO/1000 Network Connection
-[    0.    3.254121] VFS: Mounted root (xfs filesystem) on /dev/hdb1.
-:: Running /etc/init.d/rc.sysinit ...
-[ OK ] Found Hacknet Basic /etc/fstab entry for / (root).
-[ OK ] Setting up loopback interface [ lo ].
-[ OK ] Setting system timezone to Asia/Taipei.
-[ OK ] Enabling swap space: /dev/hdb2.
-[ OK ] Creating /dev/shm and /dev/pts entries.
-[ INFO ] Starting systemd-udevd: managing device nodes.
-[ OK ] Started systemd-udevd.
-[ OK ] Activated service: local-fs.target.
----
+Darwin Kernel Version 20.0.0: Thu Oct 26 12:00:00 PDT 2025; root:xnu-200.0.0~1/BUILD-HACKNET-OS-BASIC
+Kext loading now.
+Waiting for DSMOS...
+`
+(IOPPF: Found platform 0)
+(IOPPF: Found platform 1)
+IOAPIC: Version 0x20 Vectors 64:119
+IOAPIC: ACPI: Using APIC override for (Bus 0, Pin 0), routing to 0x20 (0x20)
+IOAPIC: Bus 0x0 (PCI bus), Pin 0x0
+IOAPIC: Bus 0x0 (PCI bus), Pin 0x1
+IOAPIC: Bus 0x0 (PCI bus), Pin 0x2
 
-:: Starting required services...
-[ INFO ] Awaiting network connectivity...
-[ OK ] Reached target Network.
-[ OK ] Started Network Manager Daemon.
+AppleKeyStore: operation 'create' returned -1 (Kernel is not configured)
+AppleKeyStore: operation 'destroy' returned -1 (Kernel is not configured)
+AppleKeyStore: operation 'add' returned -1 (Kernel is not configured)
+AppleKeyStore: operation 'remove' returned -1 (Kernel is not configured)
+AppleKeyStore: operation 'fetch' returned -1 (Kernel is not configured)
 
-[ **OK** ] systemd-journald.service - Journal Service
-[ **OK** ] rsyslog.service - System Logging Daemon
-[ **OK** ] auditd.service - Security Auditing Daemon
-[ **OK** ] sshd.service - OpenBSD Secure Shell Server
-[ **OK** ] cronie.service - Vixie-cron
-[ **OK** ] dbus.service - D-Bus System Message Bus
-[ **OK** ] **hacknet-basic-term.service - Basic Terminal Shell**
+ACPI: Wake button is "PBTN" (power button)
+ACPI: Debug support is on
+ACPI: Thermal zone has no _CRT, using _HOT
+ACPI: Sleep button is "SLPB" (sleep button)
+ACPI: Debug support is on
 
-[ INFO ] Starting optional services (Runlevel 3)...
-[ WARN ] firewall.service: Firewall configuration not found. Skipping.
-[ OK ] ntpdate.service: Time synchronized successfully.
-[ FAIL ] httpd.service: Address 0.0.0.0:80 is already in use.
+hda: WDC WD10JPVT-75A25T0, ATA DISK drive
+hdb: INTEL SSDPEKNW010T8, NVME DISK drive
 
--Boot Complete-
+rooting via boot-uuid from /chosen: 4B8E1D9A-24D1-4A7B-9E33-A62B6D4F1C02
+Waiting on <dict ID="0"><key>IOProviderClass</key><string ID="1">IOResources</string><key>IOResourceMatch</key><string ID="2">boot-uuid-media</string></dict>
+Loading HFS+ file: [vram]
+Loading HFS+ file: [system]
+Loading HFS+ file: [kernel_cache]
+Loading HFS+ file: [hacknet_kexts]
+
+nvme0: Identified as "HacknetNVMe-System"
+AppleNVMe: Found 1 NVMe device
+AppleNVMe: PCI ID: 0x8086:0x2701, Revision: 0x0001, Subsystem ID: 0x106B:0x00A1
+AppleNVMe: Slot 0: Model INTEL SSDPEKNW010T8, FW R001.0001
+AppleNVMe: Disk 'hacknet_disk0' (0x2)
+IOStorageFamily: **Hacknet OS Basic Version** Boot volume: 'Hacknet_System_Drive' mounted on '/'.
+IOStorageFamily: disk0s2 mounted on /
+
+0:0: Setting up HIBernation
+0:0: Power management initialized
+0:0: Starting Launchd...
+
+launchd[1]: *** Launchd Started ***
+launchd[1]: Booting Hacknet OS Basic Version 1.0.2 in single user mode.
+launchd[1]: com.apple.WindowServer: Unknown key for boolean: StartInterval
+launchd[1]: com.apple.WindowServer: Unknown key for boolean: TimeOut
+launchd[1]: com.apple.coreservices.cache: Unknown key for boolean: StartInterval
+launchd[1]: com.apple.SystemStarter: Unknown key for boolean: StartInterval
+launchd[1]: com.hacknet.networkd: Service is running.
+launchd[1]: com.hacknet.sshd: Service is running.
+launchd[1]: com.hacknet.terminald: Service is running.
+launchd[1]: com.hacknet.webservice: Service is running with PID 54.
+launchd[1]: com.hacknet.firewall: Service failed to load: 5: Input/output error
+launchd[1]: System boot completed.

@@ -7,32 +7,33 @@ Imports Audio
 Imports Server
 Imports Engine
 Imports Engine.Security
-
+Imports System.Collections.Generic
 Public Module Game
     ' 將 Directory/player 提升到模組層級
     Dim BaseDir As String
     Private player As SoundPlayer
     Private playerName As String
+    Dim RAM As Integer = 761
+    Dim UsedRAM As Integer = 0
     Sub CreateDirectory(path As String)
         ' 確保基本資料夾存在
         If Not Directory.Exists(System.IO.Path.Combine(BaseDir, path)) Then
             Directory.CreateDirectory(System.IO.Path.Combine(BaseDir, path))
         End If
     End Sub
+    Public Function GetMaxRam() As Integer
+        Return RAM
+    End Function
+    Public Function GetUsedRam() As Integer
+        Return UsedRAM
+    End Function
     Sub CreateFile(path As String, content As String)
         ' 確保基本檔案存在
         If Not File.Exists(System.IO.Path.Combine(BaseDir, path)) Then
             File.WriteAllText(System.IO.Path.Combine(BaseDir, path), content)
         End If
     End Sub
-    ' 新增: GetSoundPlayer 函數 
-    Function GetSoundPlayer(Dir As String, path As String) As SoundPlayer
-        Dim soundPath As String = System.IO.Path.Combine(Dir, path)
-        Dim p As New SoundPlayer()
-        p.SoundLocation = soundPath
-        Return p
-    End Function
-
+    Public ServersAvailable As New List(Of HNServer)
     ' 新增: 定義設定 Rich Presence 狀態的函數 (使用 P/Invoke Wrapper)
     Public Sub SetDiscordStatus(details As String, Optional state As String = "Playing Hacknet CMD Basic", Optional largeText As String = "HACKNET OS")
         Try
@@ -56,17 +57,6 @@ Public Module Game
             Debug.WriteLine("Discord RPC Failed: " & ex.Message)
         End Try
     End Sub
-    Public Sub ScanServer(server As HNServer)
-        Console.WriteLine("Scanning: " & server.Name & " (" & server.IP & ")")
-        If server.ConnectedServers Is Nothing OrElse server.ConnectedServers.Length = 0 Then
-            Console.WriteLine("  No connected servers.")
-        Else
-            Console.WriteLine("  Connected servers:")
-            For Each cs As String In server.ConnectedServers
-                Console.WriteLine("   - " & cs)
-            Next
-        End If
-    End Sub
 
     Public Function GetConnectedServer(server As HNServer) As String()
         Return server.ConnectedServers
@@ -89,10 +79,7 @@ Public Module Game
             Debug.WriteLine("Discord RPC Initialization Failed: " & ex.Message)
         End Try
         
-        Console.Title = "HACKNET OS COMMAND LINE"
-        
-        ' 警告 BC42024 (未使用的變數)
-        Dim ServersAvilable() As HNServer
+        Console.Title = "Hacknet for cmd: Basic"
         Dim targetFont As String = "MS Gothic"
         Dim targetSize As Integer = 20
         ConsoleFont.SetFont(targetFont, targetSize)
@@ -107,7 +94,7 @@ Public Module Game
         Dim selectedValue As String = "Null"
         
         ' 音效初始化
-        player = GetSoundPlayer(BaseDir,"assets\audios\bgm.wav")
+        player = AudioUtil.GetSoundPlayer(BaseDir, "assets\audios\bgm.wav")
         player.PlayLooping()
         
         While True
@@ -149,10 +136,10 @@ Public Module Game
                 ElseIf selectedValue = "Play" Then 
                     LoginSettings()
                 ElseIf selectedValue = "Options" Then 
-                    GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
+                    AudioUtil.GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
                     player.PlayLooping()
                 Else
-                    GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
+                    AudioUtil.GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
                     player.PlayLooping()
                 End If
             End If
@@ -202,7 +189,7 @@ Public Module Game
                     Register()
                 Else
                     ' 使用 BaseDir 和模組級 player
-                    GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
+                    AudioUtil.GetSoundPlayer(BaseDir,"assets\audios\erro.wav").PlaySync()
                     player.PlayLooping()
                 End If
             End If
@@ -297,6 +284,8 @@ Public Module Game
                 Thread.Sleep(20)
             End If
         Loop Until line Is Nothing
+        Thread.Sleep(3000)
+        Console.Clear()
         If HNFiles.ReadFile(BaseDir & "\Data\Player\Accounts\" & playerName & "\session.ses") = "1" Then
             ConsoleUtil.PrintWithDelay("-14 DAY TIMER EXPIRED : INITIALIZING FAILSAFE-")
             ConsoleUtil.PrintWithDelay("-----------------------------------------------------")
@@ -308,13 +297,16 @@ Public Module Game
             ConsoleUtil.PrintWithDelay("This is strange... Stranger than I expected.")
             Console.WriteLine("")
             Thread.Sleep(500)
+            player = AudioUtil.GetSoundPlayer(BaseDir, "assets\audios\Revolve.wav")
+            player.PlayLooping()
             ConsoleUtil.PrintWithDelay("I guess I'm supposed to write this in past tense, though I hardly feel like admitting it's over.")
             Console.WriteLine("")
             Thread.Sleep(1000)
             ConsoleUtil.PrintWithDelay("My name is Bit, and if you're reading this, I'm already dead.")
-            For i As Integer = 0 To 5
+            Thread.Sleep(1000)
+            For i As Integer = 0 To 10
                 Console.Clear()
-                Thread.Sleep(RandomNumber(200, 1000))
+                Thread.Sleep(RandomNumber(100, 250))
                 Console.WriteLine("Initializing...")
             Next
             ConsoleUtil.PrintWithDelay("Loading Modules......Complete")
@@ -322,7 +314,10 @@ Public Module Game
             ConsoleUtil.PrintWithDelay("Reticulating Splines......Complete")
             ConsoleUtil.PrintWithDelay("--Initialization Complete--")
             Thread.Sleep(550)
-            Console.WriteLine("Starting Tutorial...")
+            Console.WriteLine("Launching Tutorial...")
+            Thread.Sleep(1000)
+            Dim tutorialProcess As Entropy.System.Process = New Tutorial()
+            Entropy.System.Process.StartProcess(tutorialProcess, RAM, UsedRAM)
         End If
     End Sub
     Function RandomNumber(min As Integer, max As Integer) As Integer

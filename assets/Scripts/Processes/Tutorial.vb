@@ -1,0 +1,88 @@
+' ...existing code...
+Imports System
+Imports System.IO
+Imports Server
+Imports Engine
+Imports Entropy.System
+Imports System.Linq
+Imports Terminals
+
+Public Class Tutorial
+    Inherits Process
+    Dim ServersAvailable As HNServer()
+    Public Sub New()
+        needRam = 500
+    End Sub
+    Public Overrides Sub ProcessMain()
+        Dim temp As String
+        Dim list = New ServerInfoParse().LoadServers(Path.Combine("assets", "Missions", "Tutorial.json"))
+        If list Is Nothing Then
+            ServersAvailable = New HNServer() {}
+        Else
+            ServersAvailable = list.ToArray()
+        End If
+        For Each server As HNServer In ServersAvailable
+            Game.ServersAvailable.Add(server)
+        Next
+        Console.Clear()
+        Console.WriteLine("Tutorial:")
+        Console.WriteLine("As of right now you are at risk!")
+        Console.WriteLine("Learn as quickly as possible.")
+        Console.WriteLine("Begin the tutorial sequence by pressing any key.")
+        Console.ReadKey(True)
+        Console.Clear()
+        Console.WriteLine("Tutorial:")
+        Console.WriteLine("Connect to a computer by typing connect [IP] in the terminal.")
+        Console.WriteLine("Now, connect to your computer.")
+        Console.WriteLine("Your Computer's IP address is 116.452.4.6")
+        Do
+            temp = Terminal.terminal(ServersAvailable, CurrentComputer)
+        Loop While temp <> "connect" AndAlso CurrentComputer.IP <> "116.452.4.6"
+        Console.WriteLine("Tutorial:")
+        Console.WriteLine("Good work.")
+        Console.WriteLine("The first thing to do on any system is scan it for adjacent nodes.")
+        Console.WriteLine("This will reveal more computers on your network that you can use.")
+        Console.WriteLine("Scan this computer now by typing scan.")
+        Do
+            temp = Terminal.terminal(ServersAvailable, CurrentComputer)
+        Loop While temp <> "scan"
+        Console.WriteLine("Tutorial:")
+        Console.WriteLine("That should be all you'll need from your own server for now.")
+        Console.WriteLine("Disconnect from your machine by typing dc or disconnect.")
+        Do
+            temp = Terminal.terminal(ServersAvailable, CurrentComputer)
+        Loop While CurrentComputer IsNot Server.root
+        Console.WriteLine("Tutorial:")
+        Console.WriteLine("It's time for you to connect to an outside computer.")
+        Console.WriteLine("Be aware that attempting to compromise the security of another's computer is illegal under the U.S.C. Act 1030-18.")
+        Console.WriteLine("Proceed at your own risk and connect to an outside machine by typing connect [IP].")
+        Do
+            temp = Terminal.terminal(ServersAvailable, CurrentComputer)
+        Loop While temp <> "connect" AndAlso CurrentComputer.IP <> "211.467.8.6"
+        Console.WriteLine("Tutorial:")
+        Console.WriteLine("This VM's Terminal module has been activated. This will be your primary interface for navigating and interacting with nodes.")
+        Console.WriteLine("A command can be run by typing it out and pressing Enter.")
+        Console.WriteLine("A computer's security system and open ports can be analyzed using the probe or nmap command.")
+        Console.WriteLine("Analyze the computer you are currently connected to.")
+        Do
+            temp = Terminal.terminal(ServersAvailable, CurrentComputer)
+        Loop While temp <> "probe" AndAlso temp <> "nmap"
+        Console.WriteLine("Tutorial:")
+        Console.WriteLine("Here you can see the active ports, active security, and the number of open ports required to successfully crack this machine using porthack.")
+        Console.WriteLine("This machine has no active security and requires no open ports to crack.")
+        Console.WriteLine("If you're prepared, it's possible to crack this computer using the porthack.")
+        Console.WriteLine("Run the program porthack ")
+        Do
+            temp = Terminal.terminal(ServersAvailable, CurrentComputer)
+        Loop While temp <> "porthack" 
+        Console.WriteLine("Tutorial:")
+        Console.WriteLine("Congratulations, You have taken control of an external system and are now it's administrator.")
+        Console.WriteLine("You can do whatever you like with it, however you should start by Scanning for local nodes to locate additional computers.")
+        Console.WriteLine("Do this using the Scan command.")
+        Do
+            temp = Terminal.terminal(ServersAvailable, CurrentComputer)
+        Loop While temp <> "scan"
+        Kill()
+    End Sub
+End Class
+' ...existing code...

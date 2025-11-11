@@ -5,11 +5,23 @@ Imports System.Collections.Generic
 Imports System.Text.RegularExpressions
 
 Public Module Server
+    Public ReadOnly root As HNServer = New HNServer()
     Public Class HNServer
+        Public Sub New(ip As String, name As String, ports As Integer(), needCrackPortsCount As Integer, hasProxy As Boolean, hasFirewall As Boolean, hasTrace As Boolean, traceSpeed As Single, connectedServers As String(), userName As String, password As String, canLogin As Boolean)
+            IP = ip
+            Name = name
+            OpenPorts = ports
+            NeedCrackPortsCount = needCrackPortsCount
+            HasProxy = hasProxy
+            HasFirewall = hasFirewall
+            HasTrace = hasTrace
+            TraceSpeed = traceSpeed
+            ConnectedServers = connectedServers
+        End Sub
         Public Sub New()
-            IP = "127.0.0.1"
-            Name = "HNServer"
-            Ports = New Integer() {80, 25, 21, 22}
+            IP = "root"
+            Name = "Not Connected"
+            OpenPorts = New Integer() {80, 25, 21, 22}
             NeedCrackPortsCount = 0
             HasProxy = False
             HasFirewall = False
@@ -20,13 +32,35 @@ Public Module Server
         Public Property Contents() As String()
         Public Property IP As String
         Public Property Name As String
-        Public Property Ports() As Integer()
+        Public Property OpenPorts() As Integer()
         Public Property NeedCrackPortsCount As Integer
         Public Property HasProxy As Boolean
         Public Property HasFirewall As Boolean
         Public Property HasTrace As Boolean
         Public Property TraceSpeed As Single
         Public Property ConnectedServers() As String()
+        Public Property IsCracked As Boolean
+        Public Property UserName As String
+        Public Property Password As String
+        Public Property CanLogin As Boolean
+        Public Sub ScanServer(server As HNServer)
+            Console.WriteLine("Scanning: " & Name & " (" & IP & ")")
+            If ConnectedServers Is Nothing OrElse ConnectedServers.Length = 0 Then
+                Console.WriteLine("  No connected servers.")
+            Else
+                Console.WriteLine("  Connected servers:")
+                For Each cs As String In ConnectedServers
+                    Console.WriteLine("   - " & cs)
+                Next
+            End If
+        End Sub
+        Public Function Login(userName As String, password As String) As Boolean
+            If CanLogin AndAlso UserName = userName AndAlso Password = password Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
     End Class
     ' ...existing HNServer 類別 保留或放在這裡...
     Public Class ServerInfoParse
@@ -75,8 +109,17 @@ Public Module Server
                         Dim v As Integer
                         If Integer.TryParse(numM.Value, v) Then nums.Add(v)
                     Next
-                    If nums.Count > 0 Then s.Ports = nums.ToArray()
+                    If nums.Count > 0 Then s.OpenPorts = nums.ToArray()
                 End If
+                ' 解析 userName 字串
+                Dim mUserName = Regex.Match(body, """userName""\s*:\s*""([^""]*)""", RegexOptions.IgnoreCase)
+                If mUserName.Success Then s.UserName = mUserName.Groups(1).Value
+                
+                Dim mPassword = Regex.Match(body, """password""\s*:\s*""([^""]*)""", RegexOptions.IgnoreCase)
+                If mPassword.Success Then s.Password = mPassword.Groups(1).Value
+
+                Dim mCanLogin = Regex.Match(body, """canLogin""\s*:\s*(true|false)", RegexOptions.IgnoreCase)
+                If mCanLogin.Success Then s.CanLogin = (mCanLogin.Groups(1).Value.ToLower() = "true")
 
                 ' 解析 connected_servers 陣列（字串）
                 Dim mCs = Regex.Match(body, """connected_servers""\s*:\s*\[([^\]]*)\]", RegexOptions.IgnoreCase)
