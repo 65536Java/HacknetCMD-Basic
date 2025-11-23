@@ -8,6 +8,6 @@ Other Developers:<br/>
 [Skiawm91](https://github.com/Skiawm91)<br/>
 [Hoyiqiang](https://github.com/Hoyiqiang)<br/>
 [Null(Me)](https://github.com/65536Java)<br/>
-# Now version: Beta 0125
+# Now version: Beta 0125_4
 # Developing Progress: Tutorial Complete
-# Update Content: Add More Machines
+# Update Content: Forkbomb
