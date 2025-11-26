@@ -6,7 +6,7 @@ Namespace Entropy.System
         ' 根目錄下的資料夾與檔案
         Public Property Dirs As List(Of Dir)
         Public Property Files As List(Of File)
-        Private Property Root As String() = New String() {"home","bin", "log","sys"}
+        Private Property Root As String() = New String() {"home", "bin", "log", "sys"}
         Private Property Sys As String() = New String() {"x-server.sys", "os-config.sys", "bootcfg.dll", "netcfgx.dll"}
         Public Sub New()
             Dirs = New List(Of Dir)()

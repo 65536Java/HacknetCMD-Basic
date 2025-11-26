@@ -22,7 +22,7 @@ Public Module Server
             UserName = ""
             Password = ""
             CanLogin = False
-            
+
         End Sub
         Public Property CrackedPorts As Integer
         Public Property IP As String
@@ -65,7 +65,7 @@ Public Module Server
         End Sub
 
         Public Function Login(userName As String, password As String) As Boolean
-            If CanLogin AndAlso UserName = userName AndAlso Password = password Then
+            If CanLogin AndAlso userName = userName AndAlso password = password Then
                 IsAdmin = True
                 Return True
             Else

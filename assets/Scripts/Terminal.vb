@@ -368,10 +368,6 @@ Namespace Terminals
                     End Try
                     Return cmd
                 ElseIf String.Equals(cmd, "Forkbomb", StringComparison.OrdinalIgnoreCase) Then
-                    If Not CurrentComputer.GetFileExists("bin", "forkbomb.exe") Then
-                        Console.WriteLine("Unknown Command.")
-                        Return cmd
-                    End If
                     Dim fb As New ForkBomb()
                     Entropy.System.Process.StartProcess(fb, Game.GetMaxRam(), Game.GetUsedRam())
                 Else
