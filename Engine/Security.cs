@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
-namespace BCEngine.Security
+namespace RetroShell.Security
 {
     public class Security
     {

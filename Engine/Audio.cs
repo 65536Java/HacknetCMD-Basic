@@ -1,7 +1,6 @@
 using System.Media;
 
-namespace Audio
-{
+namespace RetroShell.Audio {
     public class AudioUtil
     {
         public static SoundPlayer GetSoundPlayer(string Dir, string path) {

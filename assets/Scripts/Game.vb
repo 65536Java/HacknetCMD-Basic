@@ -3,10 +3,10 @@ Imports System.IO
 Imports System.Media
 Imports System.Diagnostics
 Imports System.Threading
-Imports Audio
+Imports RetroShell.Audio
 Imports Server
-Imports BCEngine
-Imports BCEngine.Security
+Imports RetroShell
+Imports RetroShell.Security
 Imports System.Collections.Generic
 Imports Terminals
 Public Module Game
@@ -40,28 +40,6 @@ Public Module Game
     End Sub
     Public ServersAvailable As New List(Of HNServer)
     ' 新增: 定義設定 Rich Presence 狀態的函數 (使用 P/Invoke Wrapper)
-    Public Sub SetDiscordStatus(details As String, Optional state As String = "Playing Hacknet CMD Basic", Optional largeText As String = "HACKNET OS")
-        Try
-            ' 創建新的 RichPresence 結構體 (來自 Engine 命名空間)
-            Dim presence As New BCEngine.RichPresence()
-
-            ' FIX: 截斷字串以確保長度不超過 RichPresence 結構體中的固定大小
-            ' details 和 state 限制為 128，所以截取到 127
-            presence.details = If(details.Length > 127, details.Substring(0, 127), details)
-            presence.state = If(state.Length > 127, state.Substring(0, 127), state)
-
-            ' largeImageText/Key 限制為 256
-            presence.largeImageKey = "hacknet_logo"
-            presence.largeImageText = If(largeText.Length > 255, largeText.Substring(0, 255), largeText)
-
-            ' 呼叫 P/Invoke 更新狀態
-            BCEngine.DiscordRPC.UpdatePresence(presence)
-
-        Catch ex As Exception
-            ' 忽略 Discord RPC 失敗，防止程式崩潰
-            Debug.WriteLine("Discord RPC Failed: " & ex.Message)
-        End Try
-    End Sub
 
     Public Function GetConnectedServer(server As HNServer) As String()
         Return server.ConnectedServers
@@ -89,21 +67,6 @@ Public Module Game
         StartGame()
     End Sub
     Public Sub GameMain(Dir As String)
-        Dim DiscordAppID As String = "1428378052223697007"
-
-        ' 儲存 BaseDir 到模組變數
-        BaseDir = Dir
-
-        ' *** Discord RPC 初始化 (使用 P/Invoke Wrapper) ***
-        Try
-            ' VB.NET 2012 嚴格要求所有參數都用括號包住
-            BCEngine.DiscordRPC.Initialize(DiscordAppID, IntPtr.Zero, True, Nothing)
-
-            ' 設定初始狀態 (主選單)
-            SetDiscordStatus("In Main Menu")
-        Catch ex As Exception
-            Debug.WriteLine("Discord RPC Initialization Failed: " & ex.Message)
-        End Try
 
         Console.Title = "Hacknet for cmd: Basic"
         Dim targetFont As String = "MS Gothic"
@@ -118,20 +81,12 @@ Public Module Game
 
         Dim pressedKey As ConsoleKeyInfo
         Dim selectedValue As String = "Null"
-
+        BaseDir = Dir
         ' 音效初始化
         player = AudioUtil.GetSoundPlayer(BaseDir, "assets\audios\bgm.wav")
         player.PlayLooping()
 
         While True
-            ' *** 定期呼叫 Discord_RunCallbacks (P/Invoke) ***
-            Try
-                ' VB.NET 2012 嚴格要求無參數呼叫也要用括號
-                BCEngine.DiscordRPC.RunCallbacks()
-            Catch
-                ' 忽略 RunCallbacks 失敗
-            End Try
-
             Console.Clear()
             Logo("Basic")
             selectedValue = Menu(selected, menus)
@@ -151,22 +106,13 @@ Public Module Game
                 End If
             ElseIf pressedKey.Key = ConsoleKey.Enter Then
                 If selectedValue = "Exit" Then
-                    ' *** 關閉 Discord RPC (P/Invoke) ***
-                    Try
-                        BCEngine.DiscordRPC.Shutdown()
-                    Catch
-                        ' 忽略 Shutdown 失敗
-                    End Try
-                    ' Environment.Exit 必須用括號
                     Environment.Exit(0)
                 ElseIf selectedValue = "Play" Then
                     LoginSettings()
                 ElseIf selectedValue = "Options" Then
-                    AudioUtil.GetSoundPlayer(BaseDir, "assets\audios\erro.wav").PlaySync()
-                    player.PlayLooping()
+
                 Else
-                    AudioUtil.GetSoundPlayer(BaseDir, "assets\audios\erro.wav").PlaySync()
-                    player.PlayLooping()
+
                 End If
             End If
         End While
@@ -182,13 +128,6 @@ Public Module Game
         menus = New String() {"Login", "Register", "Back"}
 
         While True
-            ' *** 定期呼叫 Discord_RunCallbacks (P/Invoke) ***
-            Try
-                BCEngine.DiscordRPC.RunCallbacks()
-            Catch
-                ' 忽略 RunCallbacks 失敗
-            End Try
-
             Console.Clear()
             Logo("Play")
             selectedValue = Menu(selected, menus)
@@ -308,13 +247,7 @@ Public Module Game
 
             If line IsNot Nothing Then
                 Console.WriteLine(line)
-                If line = "\n" Then
-                    Thread.Sleep(2480)
-                End If
-                If line = "" Then
-                    Thread.Sleep(2480)
-                End If
-                Thread.Sleep(20)
+                Thread.Sleep(RandomNumber(20, 500))
             End If
         Loop Until line Is Nothing
         Thread.Sleep(3000)

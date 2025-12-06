@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace BCEngine.IO
+namespace RetroShell.IO
 {
     // Implementing IDisposable is crucial when handling open file streams
     public class FileHandler : IDisposable

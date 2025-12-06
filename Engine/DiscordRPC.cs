@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace BCEngine
+namespace RetroShell
 {
     // =========================================================
     // 1. 結構體 (Structs): 定義 Rich Presence 結構

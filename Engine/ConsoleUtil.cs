@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace BCEngine
+namespace RetroShell
 {
     // ------------------------------------------------------------------
     // I. NativeMethods: 封裝所有 Windows API 宣告

@@ -57,6 +57,7 @@ IOStorageFamily: disk0s2 mounted on /
 0:0: Setting up HIBernation
 0:0: Power management initialized
 0:0: Starting Launchd...
+
 launchd[1]: *** Launchd Started ***
 launchd[1]: Booting Hacknet OS Basic Version 1.0.2 in single user mode.
 launchd[1]: com.apple.WindowServer: Unknown key for boolean: StartInterval
