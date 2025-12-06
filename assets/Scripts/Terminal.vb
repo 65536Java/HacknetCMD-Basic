@@ -31,7 +31,7 @@ Namespace Terminals
                     Next
                 Else
                     Args = New String() {}
-                End If
+                End If 
 
                 If cmd = "connect" Then
                     If Args.Length = 0 Then
