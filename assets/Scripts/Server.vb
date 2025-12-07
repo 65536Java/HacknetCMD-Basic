@@ -251,12 +251,27 @@ Public Module Server
 
                         For Each fm As Match In Regex.Matches(filesInner, "\{(.*?)\}", RegexOptions.Singleline)
                             Dim fileBody As String = fm.Groups(1).Value
+                            Dim str As String()
                             Dim mFileName As Match = Regex.Match(fileBody, """name""\s*:\s*""([^""]*)""", RegexOptions.Singleline)
                             Dim mFileContent As Match = Regex.Match(fileBody, """content""\s*:\s*""([^""]*)""", RegexOptions.Singleline)
                             Dim f As New Entropy.System.File()
                             If mFileName.Success Then f.Name = mFileName.Groups(1).Value
                             If mFileContent.Success Then f.Content = mFileContent.Groups(1).Value
-                            s.Contents.Files.Add(f)
+                            Dim dr As Entropy.System.Dir
+                            str = f.Name.Split("/"c)
+                            If str.Length > 1 Then
+                                ' 有目錄結構，建立目錄
+                                Dim dirPath As String = String.Join("/", str, 0, str.Length - 1)
+                                dr = s.Contents.CreateDirectoryIfNotExist(dirPath)
+                            Else
+
+                            End If
+                            f.Name = str(str.Length - 1)
+                            If dr IsNot Nothing Then
+                                dr.CreateFile(f)
+                            Else
+                                s.Contents.Files.Add(f)
+                            End If
                         Next
                     End If
                 End If

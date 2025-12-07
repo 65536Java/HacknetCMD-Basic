@@ -44,6 +44,22 @@ Namespace Entropy.System
             Next
             Return exist
         End Function
+        Public Function CreateDirectoryIfNotExist(DirN As String) As Dir
+            Dim exist As Boolean = False
+            Dim Dr As New Dir(DirN)
+            For Each d As Dir In Dirs
+                If d.Name = DirN Then
+                    exist = True
+                    Dr = d
+                    Exit For
+                End If
+            Next
+            If Not exist Then
+                Dirs.Add(Dr)
+            End If
+            Return Dr
+        End Function
+
     End Class
 
     Public Class Dir
@@ -56,7 +72,10 @@ Namespace Entropy.System
             Dirs = New List(Of Dir)()
             Me.Name = Name
         End Sub
-
+        Public Function CreateFile(f As File) As File
+            Files.Add(f)
+            Return f
+        End Function
         Public Sub Delete(fileName As String)
             ' 從後往前移除以避免迭代中移除問題
             For i As Integer = Files.Count - 1 To 0 Step -1
